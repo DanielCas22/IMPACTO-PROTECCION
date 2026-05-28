@@ -7,6 +7,9 @@ if (!isAdminLoggedIn()) {
 }
 
 $pdo = getPDO();
+$role = getAdminRole();
+$canCreateProduct = in_array($role, ['administrador', 'vendedor'], true);
+$canEditProduct = in_array($role, ['administrador', 'vendedor', 'asistente'], true);
 $categories = $pdo->query('SELECT * FROM categories ORDER BY name')->fetchAll();
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
@@ -18,6 +21,11 @@ $product = [
     'image_url' => 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=600&q=80',
     'category_id' => $categories[0]['id'] ?? 1,
 ];
+
+if (!$canEditProduct || ($id === 0 && !$canCreateProduct)) {
+    header('Location: products.php?error=no_permission');
+    exit;
+}
 
 $uploadDir = __DIR__ . '/../uploads/products/';
 if (!is_dir($uploadDir)) {
@@ -65,11 +73,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($message === '') {
             if ($id > 0) {
-                $stmt = $pdo->prepare('UPDATE products SET name = :name, description = :description, price = :price, image_url = :image_url, category_id = :category_id WHERE id = :id');
-                $stmt->execute(['name' => $name, 'description' => $description, 'price' => (float) $price, 'image_url' => $imageUrl, 'category_id' => $categoryId, 'id' => $id]);
+                if (isAdministrator()) {
+                    $stmt = $pdo->prepare('UPDATE products SET name = :name, description = :description, price = :price, image_url = :image_url, category_id = :category_id WHERE id = :id');
+                    $stmt->execute(['name' => $name, 'description' => $description, 'price' => (float) $price, 'image_url' => $imageUrl, 'category_id' => $categoryId, 'id' => $id]);
+                    try { logActivity($_SESSION['admin_id'] ?? null, 'product_update', "Producto actualizado: {$name} (ID {$id})"); } catch (Exception $e) {}
+                } else {
+                    createPendingAction($_SESSION['admin_id'] ?? null, 'product_update', 'product', $id, [
+                        'name' => $name,
+                        'description' => $description,
+                        'price' => (float) $price,
+                        'image_url' => $imageUrl,
+                        'category_id' => $categoryId,
+                    ], $pdo);
+                    try { logActivity($_SESSION['admin_id'] ?? null, 'product_update_request', "Solicitud de actualización enviada: {$name} (ID {$id})"); } catch (Exception $e) {}
+                    header('Location: products.php?notice=pending_created');
+                    exit;
+                }
             } else {
-                $stmt = $pdo->prepare('INSERT INTO products (name, description, price, image_url, category_id) VALUES (:name, :description, :price, :image_url, :category_id)');
-                $stmt->execute(['name' => $name, 'description' => $description, 'price' => (float) $price, 'image_url' => $imageUrl, 'category_id' => $categoryId]);
+                if (isAdministrator()) {
+                    $stmt = $pdo->prepare('INSERT INTO products (name, description, price, image_url, category_id) VALUES (:name, :description, :price, :image_url, :category_id)');
+                    $stmt->execute(['name' => $name, 'description' => $description, 'price' => (float) $price, 'image_url' => $imageUrl, 'category_id' => $categoryId]);
+                    $newId = (int) $pdo->lastInsertId();
+                    try { logActivity($_SESSION['admin_id'] ?? null, 'product_create', "Producto creado: {$name} (ID {$newId})"); } catch (Exception $e) {}
+                } else {
+                    createPendingAction($_SESSION['admin_id'] ?? null, 'product_create', 'product', null, [
+                        'name' => $name,
+                        'description' => $description,
+                        'price' => (float) $price,
+                        'image_url' => $imageUrl,
+                        'category_id' => $categoryId,
+                    ], $pdo);
+                    try { logActivity($_SESSION['admin_id'] ?? null, 'product_create_request', "Solicitud de creación enviada: {$name}"); } catch (Exception $e) {}
+                    header('Location: products.php?notice=pending_created');
+                    exit;
+                }
             }
 
             header('Location: products.php');

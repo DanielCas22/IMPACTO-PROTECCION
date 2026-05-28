@@ -12,13 +12,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             $pdo = getPDO();
-            $stmt = $pdo->prepare('SELECT id, email, password_hash FROM admins WHERE email = :email LIMIT 1');
+            $stmt = $pdo->prepare('SELECT id, email, password_hash, role FROM admins WHERE email = :email LIMIT 1');
             $stmt->execute(['email' => $email]);
             $admin = $stmt->fetch();
 
             if ($admin && password_verify($password, $admin['password_hash'])) {
                 $_SESSION['admin_id'] = (int) $admin['id'];
                 $_SESSION['admin_email'] = $admin['email'];
+                $_SESSION['admin_role'] = $admin['role'] ?? 'administrador';
+                // Log login
+                try {
+                    logActivity((int) $admin['id'], 'login', 'Inicio de sesión administrador');
+                } catch (Exception $e) {
+                }
+
                 header('Location: dashboard.php');
                 exit;
             }

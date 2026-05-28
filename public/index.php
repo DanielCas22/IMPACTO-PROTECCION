@@ -40,11 +40,15 @@ $products = $pdo->query('SELECT p.*, c.name AS category_name FROM products p JOI
         <div class="row g-4">
             <?php foreach ($categories as $category): ?>
                 <div class="col-md-4 col-xl-2">
-                    <article class="card h-100 border-0 shadow-sm text-center p-3 category-card">
-                        <i class="fa-solid fa-shield-halved fa-2x text-warning mb-2"></i>
-                        <h3 class="h6 fw-semibold mb-1"><?php echo htmlspecialchars($category['name']); ?></h3>
-                        <p class="small text-secondary mb-0">Calidad y diseño para cada recorrido.</p>
-                    </article>
+                    <a class="text-decoration-none" href="catalog.php?category=<?php echo urlencode($category['slug']); ?>">
+                        <article class="card h-100 border-0 shadow-sm text-center p-3 category-card">
+                            <div class="py-2" style="background: var(--accent);">
+                                <i class="fa-solid fa-shield-halved fa-2x text-white"></i>
+                            </div>
+                            <h3 class="h6 fw-semibold mt-3 mb-1 text-white"><?php echo htmlspecialchars($category['name']); ?></h3>
+                            <p class="small text-secondary mb-0">Calidad y diseño para cada recorrido.</p>
+                        </article>
+                    </a>
                 </div>
             <?php endforeach; ?>
         </div>

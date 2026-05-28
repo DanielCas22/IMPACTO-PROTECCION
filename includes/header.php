@@ -7,14 +7,16 @@ require_once __DIR__ . '/../config/database.php';
 
 function projectRoot(): string
 {
-    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    $folder = rtrim(dirname($scriptName), '/');
+    $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+    $folder = str_replace('\\', '/', dirname($scriptName));
+    $folder = rtrim($folder, '/');
 
     if (basename($folder) === 'admin' || basename($folder) === 'public') {
-        return dirname($folder);
+        $parent = str_replace('\\', '/', dirname($folder));
+        return $parent === '/' ? '' : $parent;
     }
 
-    return $folder;
+    return $folder === '/' ? '' : $folder;
 }
 
 function isAdminLoggedIn(): bool
@@ -36,6 +38,60 @@ function assetUrl(string $path): string
 
     return rtrim(projectRoot(), '/') . '/' . ltrim($path, '/');
 }
+
+function getAdminRole(): ?string
+{
+    return $_SESSION['admin_role'] ?? null;
+}
+
+function isAdministrator(): bool
+{
+    return getAdminRole() === 'administrador';
+}
+
+function createPendingAction(?int $userId, string $actionType, string $entityType, ?int $entityId, array $payload, PDO $pdo = null): int
+{
+    if ($pdo === null) {
+        $pdo = getPDO();
+    }
+
+    $stmt = $pdo->prepare('INSERT INTO pending_actions (user_id, action_type, entity_type, entity_id, payload) VALUES (:user_id, :action_type, :entity_type, :entity_id, :payload)');
+    $stmt->execute([
+        'user_id' => $userId,
+        'action_type' => $actionType,
+        'entity_type' => $entityType,
+        'entity_id' => $entityId,
+        'payload' => json_encode($payload, JSON_UNESCAPED_UNICODE),
+    ]);
+
+    return (int) $pdo->lastInsertId();
+}
+
+/**
+ * Registrar una entrada en el historial de actividad.
+ * @param int|null $userId
+ * @param string $action
+ * @param string $details
+ * @param PDO|null $pdo
+ */
+function logActivity(?int $userId, string $action, string $details = '', PDO $pdo = null): void
+{
+    try {
+        if ($pdo === null) {
+            $pdo = getPDO();
+        }
+
+        $stmt = $pdo->prepare('INSERT INTO activity_log (user_id, action, details, ip_address) VALUES (:user_id, :action, :details, :ip_address)');
+        $stmt->execute([
+            'user_id' => $userId,
+            'action' => $action,
+            'details' => $details,
+            'ip_address' => $_SERVER['REMOTE_ADDR'] ?? null,
+        ]);
+    } catch (Exception $e) {
+        // No hacemos nada en caso de error para no romper la UX.
+    }
+}
 ?>
 <!doctype html>
 <html lang="es">
@@ -46,7 +102,7 @@ function assetUrl(string $path): string
     <meta name="description" content="Tienda online de protecciones para motociclistas con cascos, guantes, chaquetas y más.">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <link href="<?php echo projectRoot(); ?>/assets/css/style.css" rel="stylesheet">
+    <link href="<?php echo assetUrl('assets/css/style.css'); ?>" rel="stylesheet">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">

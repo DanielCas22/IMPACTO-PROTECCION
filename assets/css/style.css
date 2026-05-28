@@ -1,31 +1,32 @@
 :root {
-  --primary: #111827;
-  --accent: #f59e0b;
-  --surface: #111827;
+  --primary: #000000; /* color principal: negro */
+  --accent: #dc2626;  /* color acento: rojo */
+  --surface: #0b0b0b; /* superficies oscuras */
+  --muted: #9ca3af;   /* texto secundario */
 }
 
 body {
   font-family: Arial, Helvetica, sans-serif;
-  background: linear-gradient(180deg, #0f172a 0%, #111827 50%, #111827 100%);
-  color: #e5e7eb;
+  background: linear-gradient(180deg, var(--primary) 0%, #080808 60%);
+  color: #f3f4f6;
 }
 
 .hero {
-  background: linear-gradient(135deg, #111827 0%, #1f2937 45%, #111827 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, #0f0f0f 45%, var(--primary) 100%);
 }
 
 .glass-card {
-  background: rgba(17, 24, 39, 0.75);
-  backdrop-filter: blur(8px);
+  background: rgba(11, 11, 11, 0.65);
+  backdrop-filter: blur(6px);
 }
 
 .category-card, .product-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .category-card:hover, .product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 1rem 2rem rgba(245, 158, 11, 0.15) !important;
+  transform: translateY(-6px);
+  box-shadow: 0 1.25rem 2.5rem rgba(220, 38, 38, 0.12) !important; /* rojo suave */
 }
 
 .whatsapp-float {
@@ -35,12 +36,12 @@ body {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: #25d366;
+  background: #25d366; /* dejamos WhatsApp en verde */
   color: #fff;
   display: grid;
   place-items: center;
   font-size: 1.4rem;
-  box-shadow: 0 12px 24px rgba(37, 211, 102, 0.35);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.6);
   z-index: 1000;
 }
 
@@ -54,7 +55,216 @@ body {
   box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
 }
 
+.navbar-brand img {
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+  flex-shrink: 0;
+}
+
+.navbar-brand img:hover {
+  transform: scale(1.03);
+}
+
 .navbar-brand span {
   line-height: 1;
   letter-spacing: 0.2px;
 }
+
+/* Overrides principales: usar rojo como acento en botones y badges */
+.btn-warning,
+.badge.bg-warning {
+  --bs-btn-bg: var(--accent);
+  --bs-btn-border-color: var(--accent);
+  background-color: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #fff !important;
+}
+
+/* `.text-warning` se usa para etiquetas pequeñas de sección; mantener texto en blanco sin fondo */
+.text-warning {
+  background: none !important;
+  color: #fff !important;
+  padding: 0;
+  display: inline-block;
+  border-radius: 0;
+}
+
+/* Enlaces y estados activos */
+.nav-link.active, .nav-link:hover {
+  color: var(--accent) !important;
+}
+
+/* Cards and highlights */
+.card {
+  background: linear-gradient(180deg, rgba(16,16,16,0.6), rgba(8,8,8,0.6));
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+.lead { color: var(--muted); }
+
+.text-secondary { color: var(--muted) !important; }
+
+/* Botón principal personalizado (cuando se use btn-warning) */
+.btn-warning { box-shadow: 0 6px 18px rgba(220,38,38,0.18); }
+
+/* Badges con rojo */
+.badge.bg-warning { padding: 0.45em 0.6em; border-radius: 0.45rem; }
+
+.history-card {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  color: #111827;
+}
+
+.history-card th,
+.history-card td {
+  color: #111827;
+}
+
+.history-card thead {
+  background: #f8fafc;
+}
+
+.history-card thead th {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.history-table th,
+.history-table td {
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  vertical-align: top;
+}
+
+.history-table tr:hover {
+  background: #f5f7fb;
+}
+
+.history-details {
+  margin: 0;
+  padding: 0;
+  color: #475569;
+  background: transparent;
+  white-space: pre-wrap;
+  font-family: inherit;
+}
+
+.history-note {
+  color: #475569;
+}
+
+.history-card .text-secondary {
+  color: #475569 !important;
+}
+
+.admin-panel-card {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  color: #111827;
+}
+
+.admin-panel-card th,
+.admin-panel-card td {
+  color: #111827;
+}
+
+.admin-panel-card thead {
+  background: #f8fafc;
+}
+
+.admin-panel-card thead th {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.admin-table th,
+.admin-table td {
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  vertical-align: top;
+}
+
+.admin-table tr:hover {
+  background: #f5f7fb;
+}
+
+.history-details {
+  margin: 0;
+  padding: 0;
+  color: #475569;
+  background: transparent;
+  white-space: pre-wrap;
+  font-family: inherit;
+}
+
+.dashboard-hero {
+  position: relative;
+  overflow: hidden;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  background-color: #080808;
+  min-height: 300px;
+}
+
+.dashboard-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: #090909;
+  background-image:
+    linear-gradient(135deg, rgba(255,255,255,0.08) 10%, transparent 10%, transparent 40%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0.08) 50%, transparent 50%, transparent 80%, rgba(255,255,255,0.08) 80%),
+    linear-gradient(45deg, rgba(255,255,255,0.08) 10%, transparent 10%, transparent 40%, rgba(255,255,255,0.08) 40%, rgba(255,255,255,0.08) 50%, transparent 50%, transparent 80%, rgba(255,255,255,0.08) 80%);
+  background-size: 14px 14px, 14px 14px;
+  opacity: 0.72;
+}
+
+.dashboard-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 20%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0.95) 100%);
+}
+
+.dashboard-hero .hero-accent {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.dashboard-hero .hero-accent::before,
+.dashboard-hero .hero-accent::after {
+  content: "";
+  position: absolute;
+  width: 5rem;
+  height: 4px;
+  background: rgba(220,38,38,0.95);
+  box-shadow: 0 0 18px rgba(220,38,38,0.3);
+}
+
+.dashboard-hero .hero-accent::before {
+  top: 1rem;
+  left: 1rem;
+}
+
+.dashboard-hero .hero-accent::after {
+  bottom: 1rem;
+  right: 1rem;
+}
+
+.dashboard-hero .container {
+  position: relative;
+  z-index: 3;
+}
+
+.dashboard-hero .card {
+  background: rgba(18,18,18,0.58);
+  border: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+  z-index: 3;
+}
+

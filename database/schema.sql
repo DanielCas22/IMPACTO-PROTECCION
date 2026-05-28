@@ -5,7 +5,19 @@ CREATE TABLE IF NOT EXISTS admins (
   id INT AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(150) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
+  role ENUM('administrador', 'vendedor', 'asistente') NOT NULL DEFAULT 'asistente',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS activity_log (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NULL,
+  action VARCHAR(150) NOT NULL,
+  details TEXT NULL,
+  ip_address VARCHAR(45) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX (user_id),
+  FOREIGN KEY (user_id) REFERENCES admins(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS categories (
@@ -26,8 +38,25 @@ CREATE TABLE IF NOT EXISTS products (
   FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 );
 
-INSERT INTO admins (email, password_hash) VALUES
-('admin@impacto.com', '$2y$10$zUX1zcoPzAYVEKmT4.7a4.i.C3l/eUrsEdkcgzsCPIdFT02vz3taW');
+CREATE TABLE IF NOT EXISTS pending_actions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  action_type VARCHAR(100) NOT NULL,
+  entity_type VARCHAR(100) NOT NULL,
+  entity_id INT DEFAULT NULL,
+  payload TEXT NOT NULL,
+  status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+  reviewer_id INT DEFAULT NULL,
+  reviewer_note TEXT DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  reviewed_at TIMESTAMP NULL DEFAULT NULL,
+  FOREIGN KEY (user_id) REFERENCES admins(id) ON DELETE SET NULL,
+  FOREIGN KEY (reviewer_id) REFERENCES admins(id) ON DELETE SET NULL
+);
+
+INSERT INTO admins (email, password_hash, role) VALUES
+('admin@impacto.com', '$2y$10$zUX1zcoPzAYVEKmT4.7a4.i.C3l/eUrsEdkcgzsCPIdFT02vz3taW', 'administrador'),
+('daniel@gmail.com', '$2y$10$QzcqXcVVRZ4nCQLMzcOvkePN8iWrMfXyfisMGC7dl2SDkkvAlPAry', 'administrador');
 
 INSERT INTO categories (name, slug) VALUES
 ('Cascos', 'cascos'),

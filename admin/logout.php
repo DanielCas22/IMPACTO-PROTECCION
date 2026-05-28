@@ -1,5 +1,14 @@
 <?php
-session_start();
+require_once __DIR__ . '/../includes/header.php';
+
+if (isAdminLoggedIn()) {
+    try {
+        logActivity((int) ($_SESSION['admin_id'] ?? null), 'logout', 'Cierre de sesión administrador');
+    } catch (Exception $e) {
+    }
+}
+
+// Destroy session
 $_SESSION = [];
 if (ini_get('session.use_cookies')) {
     $params = session_get_cookie_params();
